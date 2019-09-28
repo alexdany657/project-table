@@ -15,16 +15,14 @@ class myHandler(BaseHTTPRequestHandler):
                 mimetype = "text/plain"
                 sendReply = True
             if self.path.endswith(".js"):
-                mimetype = "script/javascript"
+                mimetype = "application/javascript"
                 sendReply = True
 
             if sendReply:
                 f = open("." + self.path)
                 self.send_response(200)
-                self.send_header("Context-type", mimetype)
+                self.send_header("Content-type", mimetype)
                 self.end_headers()
-                if self.path == "table.json":
-                    //
                 self.wfile.write(bytes(f.read(), encoding="utf8"))
                 f.close()
             return
@@ -32,7 +30,15 @@ class myHandler(BaseHTTPRequestHandler):
             self.send_error(404,"File Not Found: " + self.path)
 
     def do_POST(self):
-        pass
+        content_length = int(self.headers["Content-Length"])
+        post_data = self.rfile.read(content_length).decode("utf8")
+        print(post_data)
+        f = open('.' + self.path, 'w')
+        f.write(post_data)
+        f.close()
+        self.send_response(200)
+        self.send_header("Content-type", "")
+        self.end_headers()
 
 try:
     server = HTTPServer(('', PORT_NUMBER), myHandler)
